@@ -8,9 +8,9 @@ namespace ASPNETCoreBasics.Contexts
     
     namespace ASPNETCoreBasics.Models
     {
-        public class ApplicationDbContext : Microsoft.EntityFrameworkCore.DbContext
+        public class WeatherForecastDbContext : Microsoft.EntityFrameworkCore.DbContext
         {
-            public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            public WeatherForecastDbContext(DbContextOptions<WeatherForecastDbContext> options)
                 : base(options)
             {
             }

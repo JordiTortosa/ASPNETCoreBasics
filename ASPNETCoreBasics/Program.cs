@@ -1,4 +1,5 @@
 using ASPNETCoreBasics.Configurations;
+using ASPNETCoreBasics.Contexts;
 using ASPNETCoreBasics.Contexts.ASPNETCoreBasics.Models;
 using ASPNETCoreBasics.Middleware;
 using ASPNETCoreBasics.Validator;
@@ -13,8 +14,10 @@ var configuration = builder.Configuration;
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 builder.Services.AddEndpointsApiExplorer();
 var connectionString = configuration.GetConnectionString("SQLBD");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<WeatherForecastDbContext>(options =>
+    options.UseSqlServer(connectionString), ServiceLifetime.Scoped);
+builder.Services.AddDbContext<UserContext>(options =>
+    options.UseSqlServer(connectionString), ServiceLifetime.Scoped);
 
 //builder.Services.AddValidatorsFromAssemblyContaining<WeatherForecastRequestValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<TestValidator>();

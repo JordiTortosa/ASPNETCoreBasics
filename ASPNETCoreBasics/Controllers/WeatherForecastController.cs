@@ -1,4 +1,5 @@
 using ASPNETCoreBasics.Configurations;
+using ASPNETCoreBasics.Contexts;
 using ASPNETCoreBasics.Contexts.ASPNETCoreBasics.Models;
 using ASPNETCoreBasics.Filters;
 using ASPNETCoreBasics.Models;
@@ -8,6 +9,7 @@ using FluentValidation;
 using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace ASPNETCoreBasics.Controllers
 {
@@ -22,19 +24,21 @@ namespace ASPNETCoreBasics.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
         private readonly MyService _myService;
-        private readonly ApplicationDbContext _context;
+        private readonly WeatherForecastDbContext _weatherForecastContext;
+        private readonly UserContext _userContext;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, MyService myService, ApplicationDbContext context)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, MyService myService, WeatherForecastDbContext weatherForecastContext, UserContext userContext)
         {
             _myService = myService;
             _logger = logger;
-            _context = context;
+            _weatherForecastContext = weatherForecastContext;
+            _userContext = userContext;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WeatherForecastModel>>> GetWeatherForecasts()
         {
-            return await _context.WeatherForecasts.ToListAsync();
+            return await _weatherForecastContext.WeatherForecasts.ToListAsync();
         }
 
         [HttpPost]
@@ -43,12 +47,12 @@ namespace ASPNETCoreBasics.Controllers
             /*
             {"date": "2024-05-20",
             "temperatureC": 25,
-            "summary": "Sunny"}   
+            "summary": "Sunny"}
              */
             if (ModelState.IsValid)
             {
-                _context.WeatherForecasts.Add(weatherForecast);
-                await _context.SaveChangesAsync();
+                _weatherForecastContext.WeatherForecasts.Add(weatherForecast);
+                await _weatherForecastContext.SaveChangesAsync();
                 return CreatedAtAction(nameof(GetWeatherForecasts), new { id = weatherForecast.Id }, weatherForecast);
             }
             else
@@ -57,47 +61,119 @@ namespace ASPNETCoreBasics.Controllers
             }
         }
 
-        /*
-        [HttpGet(Name = "GetWeatherForecast")]
-        [WeekendFilter]
-
-        public IEnumerable<WeatherForecastModel> Get()
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateWeatherForecast(int id, [FromBody] JsonElement json)
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecastModel
+            /*
+            {"date": "2024-05-20",
+            "temperatureC": 25,
+            "summary": "Sunny"}
+             */
+            var weatherForecast = await _weatherForecastContext.WeatherForecasts.FindAsync(id);
+            if (weatherForecast == null)
             {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            }).ToArray();
-        }
-
-        
-        public IActionResult Get([FromQuery] WeatherForecastModel request)
-        {
-            
-            System.Diagnostics.Debug.WriteLine("PRE VALIDACIÓN");
-            var validationResult = new WeatherForecastRequestValidator().Validate(request);
-            System.Diagnostics.Debug.WriteLine("POST VALIDACIÓN");
-            if (!validationResult.IsValid)
-            {
-                System.Diagnostics.Debug.WriteLine("VALIDACIÓN DENEGADA");
-                return BadRequest(validationResult.Errors);
+                return NotFound();
             }
 
-            System.Diagnostics.Debug.WriteLine("VALIDACIÓN ACEPTADA");
-            return Ok(GenerateWeatherForecasts());
+            using (JsonDocument doc = JsonDocument.Parse(json.GetRawText()))
+            {
+                var root = doc.RootElement;
+                if (root.TryGetProperty("date", out var dateElement))
+                {
+                    if (DateTime.TryParse(dateElement.GetString(), out DateTime dateValue))
+                    {
+                        weatherForecast.Date = new DateOnly(dateValue.Year, dateValue.Month, dateValue.Day);
+                    }
+                    else
+                    {
+                        return BadRequest("Invalid date format.");
+                    }
+                }
+                if (root.TryGetProperty("temperatureC", out var temperatureElement))
+                {
+                    weatherForecast.TemperatureC = temperatureElement.GetInt32();
+                }
+                if (root.TryGetProperty("summary", out var summaryElement))
+                {
+                    weatherForecast.Summary = summaryElement.GetString();
+                }
+            }
+            try
+            {
+                await _weatherForecastContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!WeatherForecastExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return NoContent();
         }
 
-        private IEnumerable<WeatherForecastModel> GenerateWeatherForecasts()
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteWeatherForecast(int id)
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecastModel
+            var weatherForecast = await _weatherForecastContext.WeatherForecasts.FindAsync(id);
+            if (weatherForecast == null)
             {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            }).ToArray();
+                return NotFound();
+            }
+            _weatherForecastContext.WeatherForecasts.Remove(weatherForecast);
+            await _weatherForecastContext.SaveChangesAsync();
+            return NoContent();
         }
-        */
+
+        private bool WeatherForecastExists(int id)
+        {
+            return _weatherForecastContext.WeatherForecasts.Any(e => e.Id == id);
+        }
+
+        [HttpGet("users")]
+        public ActionResult<IEnumerable<UserModel>> GetUsers()
+        {
+            var users = _userContext.Usuarios.ToList();
+            return Ok(users);
+        }
+
+        [HttpPost("users")]
+        public ActionResult<UserModel> CreateUser(UserModel user)
+        {
+            _userContext.Usuarios.Add(user);
+            _userContext.SaveChanges();
+            return CreatedAtAction(nameof(GetUsers), new { id = user.Id }, user);
+        }
+
+        [HttpGet("orders")]
+        public ActionResult<IEnumerable<OrderModel>> GetOrders()
+        {
+            var orders = _userContext.Pedidos.ToList();
+            return Ok(orders);
+        }
+
+        [HttpPost("orders")]
+        public ActionResult<OrderModel> CreateOrder(OrderModel order)
+        {
+            _userContext.Pedidos.Add(order);
+            _userContext.SaveChanges();
+            return CreatedAtAction(nameof(GetOrders), new { id = order.Id }, order);
+        }
+
+        [HttpGet("users-with-orders")]
+        public ActionResult<IEnumerable<UserModel>> GetUsersWithOrders()
+        {
+            var usersWithOrders = _userContext.Usuarios
+                .Include(user => user.Orders)
+                .ToList();
+
+            return Ok(usersWithOrders);
+        }
+
         [HttpGet("/Test")]
         [WeekendFilter]
 
