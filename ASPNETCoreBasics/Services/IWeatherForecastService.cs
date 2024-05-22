@@ -5,14 +5,14 @@ namespace ASPNETCoreBasics.Services
 {
     public interface IWeatherForecastService
     {
-        Task<IEnumerable<WeatherForecastModel>> GetWeatherForecastsAsync();
-        Task<WeatherForecastModel> CreateWeatherForecastAsync(WeatherForecastModel weatherForecast);
+        Task<IEnumerable<WeatherForecastDto>> GetWeatherForecastsAsync();
+        Task<WeatherForecastDto> CreateWeatherForecastAsync(WeatherForecastDto weatherForecastDto);
         Task<bool> UpdateWeatherForecastAsync(int id, JsonElement json);
         Task<bool> DeleteWeatherForecastAsync(int id);
-        Task<IEnumerable<UserModel>> GetUsers();
-        Task<UserModel> CreateUser(UserModel user);
-        Task<IEnumerable<OrderModel>> GetOrders();
-        Task<OrderModel> CreateOrder(OrderModel order);
-        Task<IEnumerable<UserModel>> GetUsersWithOrders();
+        Task<IEnumerable<UserDto>> GetUsers();
+        Task<UserDto> CreateUser(UserDto userDto);
+        Task<IEnumerable<OrderDto>> GetOrders();
+        Task<OrderDto> CreateOrder(OrderDto orderDto);
+        Task<IEnumerable<UserDto>> GetUsersWithOrders();
     }
 }
