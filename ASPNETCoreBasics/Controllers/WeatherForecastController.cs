@@ -3,8 +3,10 @@ using ASPNETCoreBasics.Contexts;
 using ASPNETCoreBasics.Contexts.ASPNETCoreBasics.Models;
 using ASPNETCoreBasics.Filters;
 using ASPNETCoreBasics.Models;
+using ASPNETCoreBasics.Services;
 using ASPNETCoreBasics.Validator;
 using ASPNETCoreBasics.Validators;
+using AutoMapper;
 using FluentValidation;
 using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Mvc;
@@ -17,43 +19,44 @@ namespace ASPNETCoreBasics.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
+        private readonly IWeatherForecastService _weatherForecastService;
         private readonly ILogger<WeatherForecastController> _logger;
         private readonly MyService _myService;
-        private readonly WeatherForecastDbContext _weatherForecastContext;
-        private readonly UserContext _userContext;
+        private readonly IMapper _mapper;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, MyService myService, WeatherForecastDbContext weatherForecastContext, UserContext userContext)
+        public WeatherForecastController(IWeatherForecastService weatherForecastService, ILogger<WeatherForecastController> logger, MyService myService, IMapper mapper)
         {
-            _myService = myService;
+            _weatherForecastService = weatherForecastService;
             _logger = logger;
-            _weatherForecastContext = weatherForecastContext;
-            _userContext = userContext;
+            _myService = myService;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<WeatherForecastModel>>> GetWeatherForecasts()
+        public async Task<ActionResult<IEnumerable<WeatherForecastDto>>> GetWeatherForecasts()
         {
-            return await _weatherForecastContext.WeatherForecasts.ToListAsync();
+            var forecasts = await _weatherForecastService.GetWeatherForecastsAsync();
+            //System.Diagnostics.Debug.WriteLine("ANTES DEL MAPPING");
+            var forecastsDto = _mapper.Map<IEnumerable<WeatherForecastDto>>(forecasts);
+            return Ok(forecastsDto);
         }
 
         [HttpPost]
-        public async Task<ActionResult<WeatherForecastModel>> CreateWeatherForecast(WeatherForecastModel weatherForecast)
+        public async Task<ActionResult<WeatherForecastDto>> CreateWeatherForecast(WeatherForecastDto weatherForecastDto)
         {
             /*
-            {"date": "2024-05-20",
-            "temperatureC": 25,
-            "summary": "Sunny"}
-             */
+            {
+                "date": "2023-05-22",
+                "temperatureC": 25,
+                "summary": "Sunny"
+            }
+            */
             if (ModelState.IsValid)
             {
-                _weatherForecastContext.WeatherForecasts.Add(weatherForecast);
-                await _weatherForecastContext.SaveChangesAsync();
-                return CreatedAtAction(nameof(GetWeatherForecasts), new { id = weatherForecast.Id }, weatherForecast);
+                var forecast = _mapper.Map<WeatherForecastModel>(weatherForecastDto);
+                var createdForecast = await _weatherForecastService.CreateWeatherForecastAsync(forecast);
+                var createdForecastDto = _mapper.Map<WeatherForecastDto>(createdForecast);
+                return CreatedAtAction(nameof(GetWeatherForecasts), new { id = createdForecastDto.Id }, createdForecastDto);
             }
             else
             {
@@ -64,54 +67,11 @@ namespace ASPNETCoreBasics.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateWeatherForecast(int id, [FromBody] JsonElement json)
         {
-            /*
-            {"date": "2024-05-20",
-            "temperatureC": 25,
-            "summary": "Sunny"}
-             */
-            var weatherForecast = await _weatherForecastContext.WeatherForecasts.FindAsync(id);
-            if (weatherForecast == null)
+
+            var result = await _weatherForecastService.UpdateWeatherForecastAsync(id, json);
+            if (!result)
             {
                 return NotFound();
-            }
-
-            using (JsonDocument doc = JsonDocument.Parse(json.GetRawText()))
-            {
-                var root = doc.RootElement;
-                if (root.TryGetProperty("date", out var dateElement))
-                {
-                    if (DateTime.TryParse(dateElement.GetString(), out DateTime dateValue))
-                    {
-                        weatherForecast.Date = new DateOnly(dateValue.Year, dateValue.Month, dateValue.Day);
-                    }
-                    else
-                    {
-                        return BadRequest("Invalid date format.");
-                    }
-                }
-                if (root.TryGetProperty("temperatureC", out var temperatureElement))
-                {
-                    weatherForecast.TemperatureC = temperatureElement.GetInt32();
-                }
-                if (root.TryGetProperty("summary", out var summaryElement))
-                {
-                    weatherForecast.Summary = summaryElement.GetString();
-                }
-            }
-            try
-            {
-                await _weatherForecastContext.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!WeatherForecastExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
             }
             return NoContent();
         }
@@ -119,64 +79,58 @@ namespace ASPNETCoreBasics.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteWeatherForecast(int id)
         {
-            var weatherForecast = await _weatherForecastContext.WeatherForecasts.FindAsync(id);
-            if (weatherForecast == null)
+            var result = await _weatherForecastService.DeleteWeatherForecastAsync(id);
+            if (!result)
             {
                 return NotFound();
             }
-            _weatherForecastContext.WeatherForecasts.Remove(weatherForecast);
-            await _weatherForecastContext.SaveChangesAsync();
             return NoContent();
         }
 
-        private bool WeatherForecastExists(int id)
-        {
-            return _weatherForecastContext.WeatherForecasts.Any(e => e.Id == id);
-        }
-
         [HttpGet("users")]
-        public ActionResult<IEnumerable<UserModel>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
-            var users = _userContext.Usuarios.ToList();
-            return Ok(users);
+            var users = await _weatherForecastService.GetUsers();
+            var usersDto = _mapper.Map<IEnumerable<UserDto>>(users);
+            return Ok(usersDto);
         }
 
         [HttpPost("users")]
-        public ActionResult<UserModel> CreateUser(UserModel user)
+        public async Task<ActionResult<UserDto>> CreateUser(UserDto userDto)
         {
-            _userContext.Usuarios.Add(user);
-            _userContext.SaveChanges();
-            return CreatedAtAction(nameof(GetUsers), new { id = user.Id }, user);
+            var user = _mapper.Map<UserModel>(userDto);
+            var createdUser = await _weatherForecastService.CreateUser(user);
+            var createdUserDto = _mapper.Map<UserDto>(createdUser);
+            return CreatedAtAction(nameof(GetUsers), new { id = createdUserDto.Id }, createdUserDto);
         }
 
         [HttpGet("orders")]
-        public ActionResult<IEnumerable<OrderModel>> GetOrders()
+        public async Task<ActionResult<IEnumerable<OrderDto>>> GetOrders()
         {
-            var orders = _userContext.Pedidos.ToList();
-            return Ok(orders);
+            var orders = await _weatherForecastService.GetOrders();
+            var ordersDto = _mapper.Map<IEnumerable<OrderDto>>(orders);
+            return Ok(ordersDto);
         }
 
         [HttpPost("orders")]
-        public ActionResult<OrderModel> CreateOrder(OrderModel order)
+        public async Task<ActionResult<OrderDto>> CreateOrder(OrderDto orderDto)
         {
-            _userContext.Pedidos.Add(order);
-            _userContext.SaveChanges();
-            return CreatedAtAction(nameof(GetOrders), new { id = order.Id }, order);
+            var order = _mapper.Map<OrderModel>(orderDto);
+            var createdOrder = await _weatherForecastService.CreateOrder(order);
+            var createdOrderDto = _mapper.Map<OrderDto>(createdOrder);
+            return CreatedAtAction(nameof(GetOrders), new { id = createdOrderDto.Id }, createdOrderDto);
         }
 
         [HttpGet("users-with-orders")]
-        public ActionResult<IEnumerable<UserModel>> GetUsersWithOrders()
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsersWithOrders()
         {
-            var usersWithOrders = _userContext.Usuarios
-                .Include(user => user.Orders)
-                .ToList();
-
-            return Ok(usersWithOrders);
+            var usersWithOrders = await _weatherForecastService.GetUsersWithOrders();
+            var usersWithOrdersDto = _mapper.Map<IEnumerable<UserDto>>(usersWithOrders);
+            return Ok(usersWithOrdersDto);
         }
 
         [HttpGet("/Test")]
         [WeekendFilter]
-
         public IActionResult Get([FromQuery] TestModel request)
         {
             var validationResult = new TestValidator().Validate(request);
@@ -184,9 +138,9 @@ namespace ASPNETCoreBasics.Controllers
             {
                 return BadRequest(validationResult.Errors);
             }
-
             return Ok(PrintTest());
         }
+
         private string PrintTest()
         {
             string title = _myService.GetTitle();
@@ -194,4 +148,4 @@ namespace ASPNETCoreBasics.Controllers
             return response;
         }
     }
- }
+}
