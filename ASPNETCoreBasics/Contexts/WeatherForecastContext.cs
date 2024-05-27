@@ -14,7 +14,7 @@ namespace ASPNETCoreBasics.Contexts
                 : base(options)
             {
             }
-
+            public WeatherForecastDbContext() { }
             public Microsoft.EntityFrameworkCore.DbSet<WeatherForecastModel> WeatherForecasts { get; set; }
         }
     }

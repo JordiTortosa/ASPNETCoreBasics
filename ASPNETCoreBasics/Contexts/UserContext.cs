@@ -9,6 +9,7 @@ namespace ASPNETCoreBasics.Contexts
         public UserContext(DbContextOptions<UserContext> options) : base(options)
         {
         }
+        public UserContext() { }
 
         public DbSet<UserModel> Usuarios { get; set; }
         public DbSet<OrderModel> Pedidos { get; set; }

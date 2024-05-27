@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34723.18
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASPNETCoreBasics", "ASPNETCoreBasics\ASPNETCoreBasics.csproj", "{D09B9838-7573-46BF-8277-413EDE908922}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASPNETCoreBasics", "ASPNETCoreBasics\ASPNETCoreBasics.csproj", "{D09B9838-7573-46BF-8277-413EDE908922}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASPNETCoreBasicsTests", "ASPNETCoreBasicsTests\ASPNETCoreBasicsTests.csproj", "{B3E96D2A-2B24-4E1F-AF81-14F844767C94}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{D09B9838-7573-46BF-8277-413EDE908922}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D09B9838-7573-46BF-8277-413EDE908922}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D09B9838-7573-46BF-8277-413EDE908922}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3E96D2A-2B24-4E1F-AF81-14F844767C94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3E96D2A-2B24-4E1F-AF81-14F844767C94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3E96D2A-2B24-4E1F-AF81-14F844767C94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3E96D2A-2B24-4E1F-AF81-14F844767C94}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
