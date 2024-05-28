@@ -34,6 +34,10 @@ namespace ASPNETCoreBasics.Controllers
         public async Task<ActionResult<IEnumerable<WeatherForecastDto>>> GetWeatherForecasts()
         {
             var forecasts = await _weatherForecastService.GetWeatherForecastsAsync();
+            if (forecasts == null)
+            {
+                return NotFound();
+            }
             return Ok(forecasts);
         }
 
@@ -43,6 +47,15 @@ namespace ASPNETCoreBasics.Controllers
             if (ModelState.IsValid)
             {
                 var createdForecast = await _weatherForecastService.CreateWeatherForecastAsync(weatherForecastDto);
+
+                // Verificar si el pronóstico creado es nulo
+                if (createdForecast == null)
+                {
+                    // Devolver un BadRequest indicando que la creación ha fallado
+                    return BadRequest("Failed to create weather forecast.");
+                }
+
+                // Devolver el pronóstico creado
                 return CreatedAtAction(nameof(GetWeatherForecasts), new { id = createdForecast.Id }, createdForecast);
             }
             else

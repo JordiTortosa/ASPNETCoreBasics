@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.Configuration;
 using System.Data.Entity;
-
+/*
 var builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
@@ -42,6 +42,49 @@ builder.Services.AddScoped<IWeatherForecastRepository, WeatherForecastRepository
 builder.Services.AddScoped<IWeatherForecastService, WeatherForecastService>();
 builder.Services.AddScoped<MyService>();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.UseMiddleware<TimeMiddleware>();
+
+app.MapControllers();
+app.Run();*/
+
+var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
+var configuration = builder.Configuration;
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+var connectionString = configuration.GetConnectionString("SQLBD");
+builder.Services.AddDbContext<WeatherForecastDbContext>(options =>
+    options.UseSqlServer(connectionString), ServiceLifetime.Scoped);
+builder.Services.AddDbContext<UserContext>(options =>
+    options.UseSqlServer(connectionString), ServiceLifetime.Scoped);
+
+builder.Services.AddValidatorsFromAssemblyContaining<TestValidator>();
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IWeatherForecastRepository, WeatherForecastRepository>();
+builder.Services.AddScoped<IWeatherForecastService, WeatherForecastService>();
+builder.Services.AddScoped<MyService>();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
