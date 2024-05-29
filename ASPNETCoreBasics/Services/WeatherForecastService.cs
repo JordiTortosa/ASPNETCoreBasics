@@ -69,7 +69,7 @@
         public async Task<UserDto> CreateUser(UserDto userDto)
         {
             _logger.LogInformation("Create users");
-            var user = _mapper.Map<UserModel>(userDto);   
+            var user = _mapper.Map<UserModel>(userDto);
             var createdUser = await _weatherForecastRepository.CreateUserAsync(user);
             var createdUserDto = _mapper.Map<UserDto>(createdUser);
             return createdUserDto;

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Moq;
 
 namespace ASPNETCoreBasics.Configurations
 {
@@ -14,6 +15,11 @@ namespace ASPNETCoreBasics.Configurations
         public string GetTitle()
         {
             return _configuration["AppSettings:Title"];
+        }
+
+        public static implicit operator Mock<object>(MyService v)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -5,7 +5,7 @@ using ASPNETCoreBasics.Middleware;
 using ASPNETCoreBasics.Profiles;
 using ASPNETCoreBasics.Repository;
 using ASPNETCoreBasics.Services;
-using ASPNETCoreBasics.Validator;
+using ASPNETCoreBasics.Validators;
 using ASPNETCoreBasics.Validators;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;

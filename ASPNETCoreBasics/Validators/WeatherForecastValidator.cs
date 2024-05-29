@@ -1,4 +1,4 @@
-﻿namespace ASPNETCoreBasics.Validator
+﻿namespace ASPNETCoreBasics.Validators
 {
     using ASPNETCoreBasics.Models;
     using FluentValidation;

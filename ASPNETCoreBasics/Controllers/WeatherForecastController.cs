@@ -4,7 +4,7 @@ using ASPNETCoreBasics.Contexts.ASPNETCoreBasics.Models;
 using ASPNETCoreBasics.Filters;
 using ASPNETCoreBasics.Models;
 using ASPNETCoreBasics.Services;
-using ASPNETCoreBasics.Validator;
+using ASPNETCoreBasics.Validators;
 using ASPNETCoreBasics.Validators;
 using AutoMapper;
 using FluentValidation;

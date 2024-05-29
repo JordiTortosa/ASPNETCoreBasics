@@ -38,22 +38,13 @@ namespace ASPNETCoreBasicsTests.Controllers
         {
             _loggerMock = new Mock<ILogger<WeatherForecastController>>();
             _weatherForecastServiceMock = new Mock<IWeatherForecastService>();
-            _healthCheckMock = new Mock<HealthCheckService>();
+            //_healthCheckMock = new Mock<HealthCheckService>();
             _myService = new MyService((Microsoft.Extensions.Configuration.IConfiguration)_configuration);
 
             _controller = new WeatherForecastController(_weatherForecastServiceMock.Object, _loggerMock.Object, _myService);
 
             _weatherForecastTestDto = DtoMockCreator.CreateWeatherForecastDTO(new DateOnly(2024, 05, 28), 20, "Cold");
 
-            List<OrderDto> orders = new List<OrderDto>
-        {
-            DtoMockCreator.CreateOrderDTO("Pedido de Prueba 1"),
-            DtoMockCreator.CreateOrderDTO("Pedido de Prueba 2"),
-            DtoMockCreator.CreateOrderDTO("Pedido de Prueba 3"),
-        };
-            _userTestDto = DtoMockCreator.CreateUserDTO("Carlos", orders);
-
-            _orderDto = DtoMockCreator.CreateOrderDTO("Pedido de Prueba 4");
         }
 
         [Fact]
@@ -190,6 +181,139 @@ namespace ASPNETCoreBasicsTests.Controllers
 
             // Assert
             Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public async Task GetUsers_ReturnsOkResult_WithListOfUsers()
+        {
+            // Arrange
+            var users = new List<UserDto>
+    {
+        new UserDto { Id = 1, Name = "Carlos" },
+        new UserDto { Id = 2, Name = "Ana" }
+    };
+
+            _weatherForecastServiceMock.Setup(service => service.GetUsers()).ReturnsAsync(users);
+
+            // Act
+            var result = await _controller.GetUsers();
+
+            // Assert
+            var actionResult = Assert.IsType<ActionResult<IEnumerable<UserDto>>>(result);
+            var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+            var returnValue = Assert.IsType<List<UserDto>>(okResult.Value);
+
+            Assert.Equal(users.Count, returnValue.Count);
+            _weatherForecastServiceMock.Verify(service => service.GetUsers(), Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateUser_ReturnsCreatedAtAction_WithCreatedUser()
+        {
+            // Arrange
+            var userDto = new UserDto { Name = "Carlos" };
+            var createdUserDto = new UserDto { Id = 1, Name = "Carlos" };
+
+            _weatherForecastServiceMock.Setup(service => service.CreateUser(userDto)).ReturnsAsync(createdUserDto);
+
+            // Act
+            var result = await _controller.CreateUser(userDto);
+
+            // Assert
+            var actionResult = Assert.IsType<ActionResult<UserDto>>(result);
+            var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(actionResult.Result);
+            var returnValue = Assert.IsType<UserDto>(createdAtActionResult.Value);
+
+            Assert.Equal(createdUserDto.Id, returnValue.Id);
+            Assert.Equal(createdUserDto.Name, returnValue.Name);
+
+            _weatherForecastServiceMock.Verify(service => service.CreateUser(userDto), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetOrders_ReturnsOkResult_WithListOfOrders()
+        {
+            // Arrange
+            var orders = new List<OrderDto>
+    {
+        new OrderDto { Id = 1, Description = "Order 1" },
+        new OrderDto { Id = 2, Description = "Order 2" }
+    };
+
+            _weatherForecastServiceMock.Setup(service => service.GetOrders()).ReturnsAsync(orders);
+
+            // Act
+            var result = await _controller.GetOrders();
+
+            // Assert
+            var actionResult = Assert.IsType<ActionResult<IEnumerable<OrderDto>>>(result);
+            var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+            var returnValue = Assert.IsType<List<OrderDto>>(okResult.Value);
+
+            Assert.Equal(orders.Count, returnValue.Count);
+            _weatherForecastServiceMock.Verify(service => service.GetOrders(), Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateOrder_ReturnsCreatedAtAction_WithCreatedOrder()
+        {
+            // Arrange
+            var orderDto = new OrderDto { Description = "Order 1" };
+            var createdOrderDto = new OrderDto { Id = 1, Description = "Order 1" };
+
+            _weatherForecastServiceMock.Setup(service => service.CreateOrder(orderDto)).ReturnsAsync(createdOrderDto);
+
+            // Act
+            var result = await _controller.CreateOrder(orderDto);
+
+            // Assert
+            var actionResult = Assert.IsType<ActionResult<OrderDto>>(result);
+            var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(actionResult.Result);
+            var returnValue = Assert.IsType<OrderDto>(createdAtActionResult.Value);
+
+            Assert.Equal(createdOrderDto.Id, returnValue.Id);
+            Assert.Equal(createdOrderDto.Description, returnValue.Description);
+
+            _weatherForecastServiceMock.Verify(service => service.CreateOrder(orderDto), Times.Once);
+        }
+
+
+        [Fact]
+        public async Task GetUsersWithOrders_ReturnsOkResult_WithListOfUsersWithOrders()
+        {
+            // Arrange
+            var usersWithOrders = new List<UserDto>
+    {
+        new UserDto
+        {
+            Id = 1, Name = "Carlos",
+            Orders = new List<OrderDto>
+            {
+                new OrderDto { Id = 1, Description = "Order 1" }
+            }
+        },
+        new UserDto
+        {
+            Id = 2, Name = "Ana",
+            Orders = new List<OrderDto>
+            {
+                new OrderDto { Id = 2, Description = "Order 2" }
+            }
+        }
+    };
+
+            _weatherForecastServiceMock.Setup(service => service.GetUsersWithOrders()).ReturnsAsync(usersWithOrders);
+
+            // Act
+            var result = await _controller.GetUsersWithOrders();
+
+            // Assert
+            var actionResult = Assert.IsType<ActionResult<IEnumerable<UserDto>>>(result);
+            var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+            var returnValue = Assert.IsType<List<UserDto>>(okResult.Value);
+
+            Assert.Equal(usersWithOrders.Count, returnValue.Count);
+            _weatherForecastServiceMock.Verify(service => service.GetUsersWithOrders(), Times.Once);
         }
 
     }
