@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ASPNETCoreBasics.Models;
-using Castle.DynamicProxy;
+﻿using ASPNETCoreBasics.Models;
 
 namespace ASPNETCoreBasicsTests.Mocks
 {
-
     public static class DtoMockCreator
     {
         public static WeatherForecastDto CreateWeatherForecastDTO(DateOnly date, int temperatureC, string summary) => new()
@@ -28,7 +21,5 @@ namespace ASPNETCoreBasicsTests.Mocks
         {
             Description = description,
         };
-
     }
-
 }

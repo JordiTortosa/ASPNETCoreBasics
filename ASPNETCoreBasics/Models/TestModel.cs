@@ -3,6 +3,5 @@
     public class TestModel
     {
         public string Password { get; set; }
-        
     }
 }

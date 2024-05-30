@@ -4,14 +4,11 @@ using ASPNETCoreBasics.Repository;
 using ASPNETCoreBasics.Services;
 using ASPNETCoreBasicsTests.Mocks;
 using AutoMapper;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System.Text.Json;
 using Xunit;
-using Castle.Core.Configuration;
-using ASPNETCoreBasics.Controllers;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace ASPNETCoreBasicsTests.Services
 {
@@ -20,19 +17,16 @@ namespace ASPNETCoreBasicsTests.Services
         private readonly Mock<IWeatherForecastRepository> _weatherForecastRepositoryMock;
         private readonly Mock<ILogger<WeatherForecastService>> _loggerMock;
         private readonly Mock<IMapper> _mapperMock;
-        private readonly MyService _myService;
         private readonly WeatherForecastService _weatherForecastService;
         private readonly WeatherForecastDto _weatherForecastTestDto;
-        private readonly IConfiguration _configuration;
 
         public WeatherForecastServiceTest()
         {
             _weatherForecastRepositoryMock = new Mock<IWeatherForecastRepository>();
             _loggerMock = new Mock<ILogger<WeatherForecastService>>();
-            _myService = new MyService((Microsoft.Extensions.Configuration.IConfiguration)_configuration);
             _mapperMock = new Mock<IMapper>();
 
-            _weatherForecastService = new WeatherForecastService(_weatherForecastRepositoryMock.Object, _loggerMock.Object, _myService, _mapperMock.Object);
+            _weatherForecastService = new WeatherForecastService(_weatherForecastRepositoryMock.Object, _loggerMock.Object, _mapperMock.Object);
 
             _weatherForecastTestDto = DtoMockCreator.CreateWeatherForecastDTO(new DateOnly(2024, 05, 28), 20, "Cold");
         }
@@ -194,15 +188,15 @@ namespace ASPNETCoreBasicsTests.Services
         {
             // Arrange
             var users = new List<UserModel>
-    {
-        new UserModel { Id = 1, Name = "Carlos" },
-        new UserModel { Id = 2, Name = "Ana" }
-    };
+            {
+                new UserModel { Id = 1, Name = "Carlos" },
+                new UserModel { Id = 2, Name = "Ana" }
+            };
             var userDtos = new List<UserDto>
-    {
-        new UserDto { Id = 1, Name = "Carlos" },
-        new UserDto { Id = 2, Name = "Ana" }
-    };
+            {
+                new UserDto { Id = 1, Name = "Carlos" },
+                new UserDto { Id = 2, Name = "Ana" }
+            };
 
             _weatherForecastRepositoryMock.Setup(repo => repo.GetUsersAsync()).ReturnsAsync(users);
             _mapperMock.Setup(m => m.Map<IEnumerable<UserDto>>(users)).Returns(userDtos);
@@ -248,15 +242,15 @@ namespace ASPNETCoreBasicsTests.Services
         {
             // Arrange
             var orders = new List<OrderModel>
-    {
-        new OrderModel { Id = 1, Description = "Order 1" },
-        new OrderModel { Id = 2, Description = "Order 2" }
-    };
+            {
+                new OrderModel { Id = 1, Description = "Order 1" },
+                new OrderModel { Id = 2, Description = "Order 2" }
+            };
             var orderDtos = new List<OrderDto>
-    {
-        new OrderDto { Id = 1, Description = "Order 1" },
-        new OrderDto { Id = 2, Description = "Order 2" }
-    };
+            {
+                new OrderDto { Id = 1, Description = "Order 1" },
+                new OrderDto { Id = 2, Description = "Order 2" }
+            };
 
             _weatherForecastRepositoryMock.Setup(repo => repo.GetOrdersAsync()).ReturnsAsync(orders);
             _mapperMock.Setup(m => m.Map<IEnumerable<OrderDto>>(orders)).Returns(orderDtos);
@@ -302,47 +296,47 @@ namespace ASPNETCoreBasicsTests.Services
         {
             // Arrange
             var usersWithOrders = new List<UserModel>
-    {
-        new UserModel
-        {
-            Id = 1,
-            Name = "Carlos",
-            Orders = new List<OrderModel>
             {
-                new OrderModel { Id = 1, Description = "Order 1" }
-            }
-        },
-        new UserModel
-        {
-            Id = 2,
-            Name = "Ana",
-            Orders = new List<OrderModel>
-            {
-                new OrderModel { Id = 2, Description = "Order 2" }
-            }
-        }
-    };
+                new UserModel
+                {
+                    Id = 1,
+                    Name = "Carlos",
+                    Orders = new List<OrderModel>
+                    {
+                        new OrderModel { Id = 1, Description = "Order 1" }
+                    }
+                },
+                new UserModel
+                {
+                    Id = 2,
+                    Name = "Ana",
+                    Orders = new List<OrderModel>
+                    {
+                        new OrderModel { Id = 2, Description = "Order 2" }
+                    }
+                }
+            };
             var usersWithOrdersDto = new List<UserDto>
-    {
-        new UserDto
-        {
-            Id = 1,
-            Name = "Carlos",
-            Orders = new List<OrderDto>
             {
-                new OrderDto { Id = 1, Description = "Order 1" }
-            }
-        },
-        new UserDto
-        {
-            Id = 2,
-            Name = "Ana",
-            Orders = new List<OrderDto>
-            {
-                new OrderDto { Id = 2, Description = "Order 2" }
-            }
-        }
-    };
+                new UserDto
+                {
+                    Id = 1,
+                    Name = "Carlos",
+                    Orders = new List<OrderDto>
+                    {
+                        new OrderDto { Id = 1, Description = "Order 1" }
+                    }
+                },
+                new UserDto
+                {
+                    Id = 2,
+                    Name = "Ana",
+                    Orders = new List<OrderDto>
+                    {
+                        new OrderDto { Id = 2, Description = "Order 2" }
+                    }
+                }
+            };
 
             _weatherForecastRepositoryMock.Setup(repo => repo.GetUsersWithOrdersAsync()).ReturnsAsync(usersWithOrders);
             _mapperMock.Setup(m => m.Map<IEnumerable<UserDto>>(usersWithOrders)).Returns(usersWithOrdersDto);

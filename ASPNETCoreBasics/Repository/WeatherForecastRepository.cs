@@ -1,13 +1,12 @@
 ﻿namespace ASPNETCoreBasics.Repository
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text.Json;
-    using System.Threading.Tasks;
-    using ASPNETCoreBasics.Contexts.ASPNETCoreBasics.Models;
     using ASPNETCoreBasics.Contexts;
+    using ASPNETCoreBasics.Contexts.ASPNETCoreBasics.Models;
     using ASPNETCoreBasics.Models;
     using Microsoft.EntityFrameworkCore;
+    using System.Collections.Generic;
+    using System.Text.Json;
+    using System.Threading.Tasks;
 
     public class WeatherForecastRepository : IWeatherForecastRepository
     {

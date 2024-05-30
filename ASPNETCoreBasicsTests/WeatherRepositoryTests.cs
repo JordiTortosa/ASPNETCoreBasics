@@ -2,14 +2,13 @@
 using ASPNETCoreBasics.Contexts.ASPNETCoreBasics.Models;
 using ASPNETCoreBasics.Models;
 using ASPNETCoreBasics.Repository;
-using Moq;
-using Microsoft.EntityFrameworkCore;
-using Xunit;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Moq;
+using Xunit;
 
 namespace ASPNETCoreBasicsTests
 {
-
     public class WeatherForecastRepositoryTests
     {
         private readonly WeatherForecastDbContext _context;
@@ -72,6 +71,7 @@ namespace ASPNETCoreBasicsTests
             result.Should().NotBeEmpty();
             result.First().Summary.Should().Be("Sunny");
         }
+
         [Fact]
         public async Task GetWeatherForecastByIdAsync_ReturnsCorrectForecast()
         {
@@ -110,6 +110,7 @@ namespace ASPNETCoreBasicsTests
             var deletedForecast = await repository.GetWeatherForecastByIdAsync(existingForecast.Id);
             deletedForecast.Should().BeNull();
         }
+
         [Fact]
         public async Task GetUsersAsync_ReturnsUsers()
         {

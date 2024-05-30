@@ -3,48 +3,40 @@ using ASPNETCoreBasics.Controllers;
 using ASPNETCoreBasics.Models;
 using ASPNETCoreBasics.Services;
 using ASPNETCoreBasicsTests.Mocks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Serilog.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
-using ASPNETCoreBasics.Configurations;
-using Castle.Core.Configuration;
-using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using Xunit;
 
 namespace ASPNETCoreBasicsTests.Controllers
 {
     public class WeatherForecastControllerTest
     {
-
         private readonly WeatherForecastController _controller;
         private readonly Mock<ILogger<WeatherForecastController>> _loggerMock;
         private readonly Mock<IWeatherForecastService> _weatherForecastServiceMock;
-        private readonly Mock<HealthCheckService> _healthCheckMock;
-        private readonly UserDto _userTestDto;
-        private readonly OrderDto _orderDto;
         private readonly WeatherForecastDto _weatherForecastTestDto;
         private readonly MyService _myService;
-        private readonly IConfiguration _configuration;
+        private readonly Microsoft.Extensions.Configuration.IConfiguration _configuration;
 
         public WeatherForecastControllerTest()
         {
             _loggerMock = new Mock<ILogger<WeatherForecastController>>();
             _weatherForecastServiceMock = new Mock<IWeatherForecastService>();
-            //_healthCheckMock = new Mock<HealthCheckService>();
-            _myService = new MyService((Microsoft.Extensions.Configuration.IConfiguration)_configuration);
+
+            var inMemorySettings = new Dictionary<string, string> {
+                { "SomeKey", "SomeValue" }
+            };
+            _configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(inMemorySettings)
+                .Build();
+            _myService = new MyService(_configuration);
 
             _controller = new WeatherForecastController(_weatherForecastServiceMock.Object, _loggerMock.Object, _myService);
 
             _weatherForecastTestDto = DtoMockCreator.CreateWeatherForecastDTO(new DateOnly(2024, 05, 28), 20, "Cold");
-
         }
 
         [Fact]
@@ -76,6 +68,7 @@ namespace ASPNETCoreBasicsTests.Controllers
 
             _weatherForecastServiceMock.Verify(s => s.GetWeatherForecastsAsync(), Times.Once);
         }
+
         [Fact]
         public async Task GetWeatherForecast_NotFound()
         {
@@ -116,6 +109,7 @@ namespace ASPNETCoreBasicsTests.Controllers
                 dto.TemperatureC == weatherForecastDto.TemperatureC &&
                 dto.Summary == weatherForecastDto.Summary)), Times.Once);
         }
+
         [Fact]
         public async Task CreateWeatherForecast_Failure()
         {
@@ -147,6 +141,7 @@ namespace ASPNETCoreBasicsTests.Controllers
             var actionResult = Assert.IsType<NoContentResult>(result);
             _weatherForecastServiceMock.Verify(s => s.DeleteWeatherForecastAsync(weatherForecastId), Times.Once);
         }
+
         [Fact]
         public async Task DeleteWeatherForecast_NotFound()
         {
@@ -277,7 +272,6 @@ namespace ASPNETCoreBasicsTests.Controllers
             _weatherForecastServiceMock.Verify(service => service.CreateOrder(orderDto), Times.Once);
         }
 
-
         [Fact]
         public async Task GetUsersWithOrders_ReturnsOkResult_WithListOfUsersWithOrders()
         {
@@ -315,6 +309,5 @@ namespace ASPNETCoreBasicsTests.Controllers
             Assert.Equal(usersWithOrders.Count, returnValue.Count);
             _weatherForecastServiceMock.Verify(service => service.GetUsersWithOrders(), Times.Once);
         }
-
     }
 }

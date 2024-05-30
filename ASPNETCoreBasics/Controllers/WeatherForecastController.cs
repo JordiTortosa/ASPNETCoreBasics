@@ -1,16 +1,9 @@
 using ASPNETCoreBasics.Configurations;
-using ASPNETCoreBasics.Contexts;
-using ASPNETCoreBasics.Contexts.ASPNETCoreBasics.Models;
 using ASPNETCoreBasics.Filters;
 using ASPNETCoreBasics.Models;
 using ASPNETCoreBasics.Services;
 using ASPNETCoreBasics.Validators;
-using ASPNETCoreBasics.Validators;
-using AutoMapper;
-using FluentValidation;
-using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 namespace ASPNETCoreBasics.Controllers

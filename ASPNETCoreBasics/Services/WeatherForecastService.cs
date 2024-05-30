@@ -1,26 +1,24 @@
 ﻿namespace ASPNETCoreBasics.Services
 {
-    using System.Collections.Generic;
-    using System.Text.Json;
-    using System.Threading.Tasks;
     using ASPNETCoreBasics.Configurations;
     using ASPNETCoreBasics.Models;
     using ASPNETCoreBasics.Repository;
     using AutoMapper;
     using Microsoft.Extensions.Logging;
+    using System.Collections.Generic;
+    using System.Text.Json;
+    using System.Threading.Tasks;
 
     public class WeatherForecastService : IWeatherForecastService
     {
         private readonly IWeatherForecastRepository _weatherForecastRepository;
         private readonly ILogger<WeatherForecastService> _logger;
-        private readonly MyService _myService;
         private readonly IMapper _mapper;
 
-        public WeatherForecastService(IWeatherForecastRepository weatherForecastRepository, ILogger<WeatherForecastService> logger, MyService myService, IMapper mapper)
+        public WeatherForecastService(IWeatherForecastRepository weatherForecastRepository, ILogger<WeatherForecastService> logger, IMapper mapper)
         {
             _weatherForecastRepository = weatherForecastRepository;
             _logger = logger;
-            _myService = myService;
             _mapper = mapper;
         }
 

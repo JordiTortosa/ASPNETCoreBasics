@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Moq;
+﻿using Moq;
 
 namespace ASPNETCoreBasics.Configurations
 {

@@ -15,7 +15,6 @@ namespace ASPNETCoreBasics.Profiles
 
             CreateMap<OrderModel, OrderDto>();
             CreateMap<OrderDto, OrderModel>();
-
         }
     }
 }

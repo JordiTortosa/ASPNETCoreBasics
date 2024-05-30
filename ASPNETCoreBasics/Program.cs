@@ -6,12 +6,10 @@ using ASPNETCoreBasics.Profiles;
 using ASPNETCoreBasics.Repository;
 using ASPNETCoreBasics.Services;
 using ASPNETCoreBasics.Validators;
-using ASPNETCoreBasics.Validators;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using System.Configuration;
-using System.Data.Entity;
+
 /*
 var builder = WebApplication.CreateBuilder(args);
 

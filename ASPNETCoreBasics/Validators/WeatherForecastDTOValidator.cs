@@ -2,7 +2,6 @@
 {
     using ASPNETCoreBasics.Models;
     using FluentValidation;
-    using Microsoft.AspNetCore.Http;
 
     public class WeatherForecastDTORequestValidator : AbstractValidator<WeatherForecastDto>
     {

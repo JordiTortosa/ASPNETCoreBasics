@@ -6,5 +6,4 @@
         public string Name { get; set; }
         public List<OrderModel> Orders { get; set; }
     }
-    
 }

@@ -4,7 +4,6 @@ namespace ASPNETCoreBasics.Middleware
 {
     public class TimeMiddleware
     {
-
         private readonly RequestDelegate _next;
         private readonly ILogger<WeatherForecastService> _logger;
 
